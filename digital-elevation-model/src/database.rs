@@ -7,6 +7,8 @@ pub trait DatabaseEntry {
     const ARCHIVED_DATA_SRC: &'static str;
     /// Associated dem profile
     const DEM_PROFILE: DemProfile;
+    /// Chunk size in pixels
+    const CHUNK_SIZE: u32;
 }
 
 pub struct MarsHrscMolaBlend;
@@ -22,6 +24,8 @@ impl DatabaseEntry for MarsHrscMolaBlend {
         meters_per_pixel: 200.0,
         max_elevation: 1.0,
     };
+
+    const CHUNK_SIZE: u32 = 1024 * 8;
 }
 
 pub struct MarsMola;
@@ -37,4 +41,6 @@ impl DatabaseEntry for MarsMola {
         meters_per_pixel: 463.0,
         max_elevation: 1.0,
     };
+
+    const CHUNK_SIZE: u32 = 1024 * 8;
 }

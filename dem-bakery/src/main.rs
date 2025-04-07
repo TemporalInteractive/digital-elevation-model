@@ -9,7 +9,12 @@ use speedy::Writable;
 fn main() -> anyhow::Result<()> {
     let path = PathBuf::from("dem-bakery/assets/Mars_MGS_MOLA_DEM_mosaic_global_463m.tif");
 
-    let dem_chunks = Dem::load_chunks_from_image(&path, 1024 * 8, 1024 * 8, MarsMola::DEM_PROFILE)?;
+    let dem_chunks = Dem::load_chunks_from_image(
+        &path,
+        MarsMola::CHUNK_SIZE,
+        MarsMola::CHUNK_SIZE,
+        MarsMola::DEM_PROFILE,
+    )?;
 
     let result_dir = path.parent().unwrap().join(path.file_stem().unwrap());
     std::fs::create_dir(&result_dir)?;

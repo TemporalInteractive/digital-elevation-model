@@ -7,6 +7,8 @@ use speedy::{Readable, Writable};
 
 pub mod database;
 
+pub use database::*;
+
 /// Digital elevation model profile, describes auxilery data
 #[derive(Debug, Clone, Readable, Writable)]
 pub struct DemProfile {
