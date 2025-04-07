@@ -1,0 +1,21 @@
+[package]
+name = "dem-bakery"
+authors.workspace = true
+edition.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+version.workspace = true
+readme.workspace = true
+description.workspace = true
+
+[dependencies]
+digital-elevation-model.workspace = true
+
+anyhow.workspace = true
+glam.workspace = true
+half.workspace = true
+image.workspace = true
+speedy.workspace = true
