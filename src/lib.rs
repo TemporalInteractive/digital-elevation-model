@@ -20,7 +20,7 @@ impl Default for DemProfile {
     fn default() -> Self {
         Self {
             meters_per_pixel: 1.0,
-            max_elevation: 10.0,
+            max_elevation: 1.0,
         }
     }
 }
@@ -35,26 +35,48 @@ pub struct Dem {
 }
 
 impl Dem {
-    pub fn load_from_image(path: &Path, profile: DemProfile) -> anyhow::Result<Self> {
+    pub fn load_chunks_from_image<F>(
+        path: &Path,
+        chunk_width: u32,
+        chunk_height: u32,
+        profile: DemProfile,
+    ) -> anyhow::Result<Vec<Self>> {
         let image = ImageReader::open(path)?.decode()?.to_rgb8();
-
         let width = image.width();
         let height = image.height();
 
-        let mut dem = vec![0; (width * height) as usize];
+        assert!(width % chunk_width == 0);
+        assert!(height % chunk_height == 0);
+        let num_chunks_x = width / chunk_width;
+        let num_chunks_y = height / chunk_height;
+
+        let mut chunks = vec![
+            Dem {
+                width: chunk_width,
+                height: chunk_height,
+                profile,
+                dem: vec![0; (chunk_width * chunk_height) as usize]
+            };
+            (num_chunks_x * num_chunks_y) as usize
+        ];
+
         for (x, y, pixel) in image.enumerate_pixels() {
             let (r, _g, _b) = (pixel[0], pixel[1], pixel[2]);
 
             let elevation = r as f32 / 255.0;
-            dem[(y * width + x) as usize] = f16::from_f32(elevation).to_bits();
+            let elevation_u16 = f16::from_f32(elevation).to_bits();
+
+            let chunk_idx_x = x / chunk_width;
+            let chunk_idx_y = y / chunk_height;
+            let chunk_idx = chunk_idx_y * num_chunks_x + chunk_idx_x;
+            let dem_idx_x = x % chunk_width;
+            let dem_idx_y = y % chunk_height;
+            let dem_idx = dem_idx_y * chunk_width + dem_idx_x;
+
+            chunks[chunk_idx as usize].dem[dem_idx as usize] = elevation_u16;
         }
 
-        Ok(Self {
-            width,
-            height,
-            profile,
-            dem,
-        })
+        Ok(chunks)
     }
 
     /// Width in pixels
